@@ -1,28 +1,34 @@
-FROM node:lts-alpine as builder
+FROM node:lts-alpine as dev
 
-ENV NODE_ENV build
-
-USER node
-WORKDIR /home/node
+WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci
 
-COPY --chown=node:node . .
-RUN npm run build \
-    && npm prune --production
+RUN npm i
 
-# ---
+COPY . .
 
-FROM node:lts-alpine
+RUN npm run build
 
-ENV NODE_ENV production
+FROM node:lts-alpine as prod
 
-USER node
-WORKDIR /home/node
+# static
+ENV BUILD prod
 
-COPY --from=builder --chown=node:node /home/node/package*.json ./
-COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
-COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+# dynamic
+# ARG BUILD
+# ENV BUILD $BUILD
 
-CMD ["node", "dist/server.js"]
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm i --only=prod
+
+COPY . .
+
+COPY --from=dev /usr/src/app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"]
