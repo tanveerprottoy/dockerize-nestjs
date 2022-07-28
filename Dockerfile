@@ -13,11 +13,11 @@ RUN npm run build
 FROM node:lts-alpine as prod
 
 # static
-ENV BUILD prod
+ENV NODE_ENV prod
 
 # dynamic
-# ARG BUILD
-# ENV BUILD $BUILD
+# ARG NODE_ENV
+# ENV NODE_ENV $NODE_ENV
 
 WORKDIR /usr/src/app
 
