@@ -1,4 +1,4 @@
-FROM node:lts-alpine as dev
+FROM node:lts-alpine as build
 
 WORKDIR /usr/src/app
 
@@ -27,7 +27,7 @@ RUN npm i --only=prod
 
 COPY . .
 
-COPY --from=dev /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/dist ./dist
 
 EXPOSE 3000
 
